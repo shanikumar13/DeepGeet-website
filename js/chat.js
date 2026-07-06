@@ -6,7 +6,7 @@
 const chatMessages = document.getElementById("chatMessages");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
-const skeletonLoader = document.getElementById("skeletonLoader");
+const chatTypingIndicator = document.getElementById("chatTypingIndicator");
 
 let chatHistory = StorageManager.loadChatHistory();
 
@@ -52,14 +52,68 @@ function renderMessageText(contentDiv, text, sender) {
     }
 }
 
+function createAvatar(sender) {
+    if (sender === "user") {
+        const avatar = document.createElement("span");
+        avatar.className = "user-avatar-icon";
+        avatar.textContent = "👤";
+        return avatar;
+    } else {
+        const wrapper = document.createElement("div");
+        wrapper.className = "chat-avatar-wrapper";
+        const img = document.createElement("img");
+        img.className = "chat-avatar";
+        img.src = "assets/images/neocat.jpg";
+        img.alt = "DeepGeet";
+        wrapper.appendChild(img);
+        return wrapper;
+    }
+}
+
+function createBubbleVoicePlayer(text) {
+    const player = document.createElement("div");
+    player.className = "bubble-voice-player";
+    player.dataset.text = text;
+
+    const playBtn = document.createElement("button");
+    playBtn.className = "bubble-play-btn";
+    playBtn.innerHTML = "▶️";
+    playBtn.setAttribute("aria-label", "Play voice response");
+
+    const wave = document.createElement("div");
+    wave.className = "bubble-voice-wave";
+    for (let i = 0; i < 10; i++) {
+        const line = document.createElement("span");
+        line.className = "v-line";
+        wave.appendChild(line);
+    }
+
+    player.appendChild(playBtn);
+    player.appendChild(wave);
+
+    playBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (player.classList.contains("playing")) {
+            speechSynthesis.cancel();
+        } else {
+            speechSynthesis.cancel();
+            
+            speak(text, () => {
+                player.classList.remove("playing");
+                playBtn.innerHTML = "▶️";
+            });
+        }
+    });
+
+    return player;
+}
+
 function appendMessage(text, sender) {
 
     const bubble = document.createElement("div");
     bubble.className = `msg-bubble ${sender}-message`;
 
-    const avatar = document.createElement("span");
-    avatar.className = "sender-avatar";
-    avatar.textContent = sender === "user" ? "👤" : "🤖";
+    const avatar = createAvatar(sender);
 
     const content = document.createElement("div");
     content.className = "msg-content";
@@ -67,6 +121,12 @@ function appendMessage(text, sender) {
 
     bubble.appendChild(avatar);
     bubble.appendChild(content);
+
+    // Append audio player inside bot message bubble
+    if (sender === "bot") {
+        const player = createBubbleVoicePlayer(text);
+        content.appendChild(player);
+    }
 
     chatMessages.appendChild(bubble);
 
@@ -105,12 +165,7 @@ function loadHistory() {
         const bubble = document.createElement("div");
         bubble.className = `msg-bubble ${msg.sender}-message`;
 
-        const avatar = document.createElement("span");
-        avatar.className = "sender-avatar";
-        avatar.textContent =
-            msg.sender === "user"
-                ? "👤"
-                : "🤖";
+        const avatar = createAvatar(msg.sender);
 
         const content = document.createElement("div");
         content.className = "msg-content";
@@ -118,6 +173,12 @@ function loadHistory() {
 
         bubble.appendChild(avatar);
         bubble.appendChild(content);
+
+        // Append audio player inside bot message bubble
+        if (msg.sender === "bot") {
+            const player = createBubbleVoicePlayer(msg.text);
+            content.appendChild(player);
+        }
 
         chatMessages.appendChild(bubble);
 
@@ -133,13 +194,14 @@ function loadHistory() {
 
 function showTyping() {
 
-    skeletonLoader.classList.remove("hidden");
+    chatTypingIndicator.classList.remove("hidden");
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
 }
 
 function hideTyping() {
 
-    skeletonLoader.classList.add("hidden");
+    chatTypingIndicator.classList.add("hidden");
 
 }
 
@@ -311,32 +373,7 @@ function offlineReply(text) {
 
 /* ---------- Voice Reply ---------- */
 
-let currentUtterance = null;
-
-if ("speechSynthesis" in window) {
-    speechSynthesis.onvoiceschanged = () => {
-        speechSynthesis.getVoices();
-    };
-}
-
-function getCuteVoice(text) {
-    if (!("speechSynthesis" in window)) return null;
-    const voices = speechSynthesis.getVoices();
-    const isHindi = /[\u0900-\u097F]/.test(text);
-    
-    let selectedVoice = null;
-    if (isHindi) {
-        selectedVoice = voices.find(v => v.lang.includes("hi") && (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("kalpana") || v.name.toLowerCase().includes("google")));
-        if (!selectedVoice) selectedVoice = voices.find(v => v.lang.includes("hi"));
-    }
-    
-    if (!selectedVoice) {
-        selectedVoice = voices.find(v => v.lang.includes("en") && (v.name.toLowerCase().includes("google") || v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("zira") || v.name.toLowerCase().includes("hazel") || v.name.toLowerCase().includes("natural")));
-        if (!selectedVoice) selectedVoice = voices.find(v => v.lang.includes("en"));
-    }
-    
-    return selectedVoice || voices[0];
-}
+let currentAudio = null;
 
 function speak(text, onEndCallback = null) {
 
@@ -347,12 +384,11 @@ function speak(text, onEndCallback = null) {
         return;
     }
 
-    if (!("speechSynthesis" in window)) {
-        if (onEndCallback) onEndCallback();
-        return;
+    // Cancel current audio if playing
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
     }
-
-    speechSynthesis.cancel();
 
     let plainText = text;
     if (typeof marked !== "undefined") {
@@ -361,13 +397,17 @@ function speak(text, onEndCallback = null) {
         plainText = tempDiv.textContent || tempDiv.innerText || text;
     }
 
-    const utterance = new SpeechSynthesisUtterance(plainText);
-    currentUtterance = utterance;
+    // Determine language (Hindi vs English)
+    const isHindi = /[\u0900-\u097F]/.test(plainText);
+    const lang = isHindi ? "hi-IN" : "en-US";
 
-    utterance.voice = getCuteVoice(plainText);
-    utterance.pitch = 1.45; // Doraemon-style high pitch
-    utterance.rate = 1.05;  // Slightly faster and animated
-    utterance.volume = 1;
+    // Request speech from backend API
+    const isLocalFile = window.location.protocol === "file:";
+    const apiBase = isLocalFile ? "http://localhost:3000" : "";
+    const audioUrl = `${apiBase}/api/tts?text=${encodeURIComponent(plainText)}&lang=${lang}`;
+
+    const audio = new Audio(audioUrl);
+    currentAudio = audio;
 
     // Speaking Animations (Header & Voice Screen)
     const speakingVis = document.getElementById("speakingVisualizer");
@@ -376,34 +416,57 @@ function speak(text, onEndCallback = null) {
     const voiceMascotContainer = document.querySelector(".voice-mascot-container");
     const voiceWaveform = document.getElementById("voiceWaveform");
 
-    utterance.onstart = () => {
-        speakingVis?.classList.remove("hidden");
-        stopVoiceBtn?.classList.remove("hidden");
-        voiceStopBtn?.classList.remove("hidden");
-        voiceMascotContainer?.classList.add("speaking");
-        voiceWaveform?.classList.remove("hidden");
-    };
-
     const cleanupSpeakingVisuals = () => {
         speakingVis?.classList.add("hidden");
         stopVoiceBtn?.classList.add("hidden");
         voiceStopBtn?.classList.add("hidden");
         voiceMascotContainer?.classList.remove("speaking");
         voiceWaveform?.classList.add("hidden");
+
+        // Stop all bubble visualizers
+        document.querySelectorAll(".bubble-voice-player").forEach(p => {
+            p.classList.remove("playing");
+            const btn = p.querySelector(".bubble-play-btn");
+            if (btn) btn.innerHTML = "▶️";
+        });
     };
 
-    utterance.onend = () => {
+    audio.onplay = () => {
+        speakingVis?.classList.remove("hidden");
+        stopVoiceBtn?.classList.remove("hidden");
+        voiceStopBtn?.classList.remove("hidden");
+        voiceMascotContainer?.classList.add("speaking");
+        voiceWaveform?.classList.remove("hidden");
+
+        // Sync visualizer on corresponding message bubble
+        const players = document.querySelectorAll(".bubble-voice-player");
+        if (players.length > 0) {
+            const activePlayer = Array.from(players).find(p => p.dataset.text === text);
+            const targetPlayer = activePlayer || players[players.length - 1];
+            targetPlayer.classList.add("playing");
+            const btn = targetPlayer.querySelector(".bubble-play-btn");
+            if (btn) btn.innerHTML = "⏸️";
+        }
+    };
+
+    audio.onended = () => {
         cleanupSpeakingVisuals();
+        currentAudio = null;
         if (onEndCallback) onEndCallback();
     };
 
-    utterance.onerror = () => {
+    audio.onerror = (e) => {
+        console.error("Audio playback error:", e);
         cleanupSpeakingVisuals();
+        currentAudio = null;
         if (onEndCallback) onEndCallback();
     };
 
-    speechSynthesis.speak(utterance);
-
+    audio.play().catch(err => {
+        console.warn("Audio play blocked by browser autoplay policy, waiting for user gesture:", err);
+        cleanupSpeakingVisuals();
+        if (onEndCallback) onEndCallback();
+    });
 }
 
 /* ---------- Override appendMessage ---------- */
@@ -708,6 +771,10 @@ if (voiceMicBtn) {
 }
 
 const cancelAllSpeech = () => {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
     speechSynthesis.cancel();
     if (voiceRecognition) voiceRecognition.abort();
     

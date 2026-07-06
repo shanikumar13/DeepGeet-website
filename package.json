@@ -1,5 +1,14 @@
 {
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "node api/server.js"
+  },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1"
+    "@google/generative-ai": "^0.24.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "groq-sdk": "^0.30.0",
+    "msedge-tts": "^2.0.6"
   }
 }

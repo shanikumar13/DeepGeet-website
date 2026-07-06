@@ -17,12 +17,7 @@ app.use(express.json());
 
 app.use("/api", routes);
 
-app.get("/", (req, res) => {
-    res.json({
-        status: "online",
-        name: "DeepGeet AI V5 Backend"
-    });
-});
+app.use(express.static(path.join(__dirname, "../")));
 
 const PORT = process.env.PORT || 3000;
 

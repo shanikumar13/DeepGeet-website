@@ -32,19 +32,112 @@ document.addEventListener("DOMContentLoaded", () => {
     /* --------------------------
        Startup Overlay
     --------------------------- */
-    activateCompanionBtn?.addEventListener("click", () => {
-        startOverlay.classList.add("hidden");
-        if (typeof speak === "function") {
-            speak("Hello Buddy! Welcome to DeepGeet.");
+    /* --------------------------
+       Cinematic 5-Phase Intro Particles & Timeline Loop
+    --------------------------- */
+    const introParticles = document.getElementById("introParticles");
+    if (introParticles) {
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement("div");
+            particle.className = "intro-particle";
+            const size = Math.random() * 8 + 4;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            particle.style.left = `${Math.random() * 100}vw`;
+            particle.style.animationDelay = `${Math.random() * 8}s`;
+            particle.style.animationDuration = `${Math.random() * 5 + 6}s`;
+            introParticles.appendChild(particle);
         }
-        const mascot = document.getElementById("mascotImg");
-        if (mascot) {
-            mascot.style.transform = "scale(1.15) rotate(5deg)";
+    }
+
+    let blinkInterval = null;
+
+    function startBlinking() {
+        const eyelid = document.getElementById("eyelidOverlay");
+        if (!eyelid) return;
+        blinkInterval = setInterval(() => {
+            // Eyelids only blink when they are not in closed/smiling state (Phases 1 & 4)
+            if (startOverlay.classList.contains("phase-1") || startOverlay.classList.contains("phase-4")) {
+                eyelid.classList.add("eyelid-blink");
+                setTimeout(() => {
+                    eyelid.classList.remove("eyelid-blink");
+                }, 250);
+            }
+        }, Math.random() * 2000 + 2500); // Blinks every 2.5 - 4.5 seconds
+    }
+
+    // Start blinking loop immediately on load
+    startBlinking();
+
+    let introSpeechPlayed = false;
+    let phase4Triggered = false;
+    let safetyTimeout = null;
+
+    function playIntroSpeech() {
+        if (introSpeechPlayed) return;
+        if (!startOverlay.classList.contains("phase-3")) return;
+        
+        introSpeechPlayed = true;
+        if (typeof speak === "function") {
+            speak("नमस्ते! DeepGeet AI में आपका स्वागत है।", () => {
+                triggerPhase4();
+            });
+        }
+    }
+
+    function triggerPhase4() {
+        if (phase4Triggered) return;
+        phase4Triggered = true;
+        
+        if (safetyTimeout) clearTimeout(safetyTimeout);
+        
+        // Phase 4: Waving bye and walking away back into portal
+        startOverlay.className = "start-overlay cinematic phase-4";
+        
+        // Wait 2.0s for walking exit animation
+        setTimeout(() => {
+            // Phase 5: Fade/Slide overlay out
+            startOverlay.className = "start-overlay cinematic phase-5";
+            
+            // Wait for sliding transition (1.2s)
             setTimeout(() => {
-                mascot.style.transform = "";
-            }, 1000);
+                startOverlay.classList.add("hidden");
+                showHome();
+            }, 1200);
+        }, 2000);
+    }
+
+    // Trigger speech on first interaction anywhere on page (if browser blocked autoplay)
+    startOverlay?.addEventListener("click", () => {
+        if (startOverlay.classList.contains("phase-3") && !introSpeechPlayed) {
+            playIntroSpeech();
         }
     });
+
+    // Run the Timeline automatically:
+    // Phase 1 (Entry): Active on load (0.0s - 1.5s)
+    
+    // T+1.5s -> Phase 2 (Namaste Gesture & Smile)
+    setTimeout(() => {
+        if (phase4Triggered) return;
+        startOverlay.className = "start-overlay cinematic phase-2";
+        
+        // T+3.0s -> Phase 3 (Says Namaste speech bubble and waveforms)
+        setTimeout(() => {
+            if (phase4Triggered) return;
+            startOverlay.className = "start-overlay cinematic phase-3";
+            
+            // Attempt to autoplay audio
+            playIntroSpeech();
+            
+            // Fallback: if speech synthesis is blocked or fails to trigger callback, proceed after 5 seconds
+            safetyTimeout = setTimeout(() => {
+                triggerPhase4();
+            }, 5000);
+            
+        }, 1500);
+        
+    }, 1500);
 
     /* --------------------------
        Screen Navigation

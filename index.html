@@ -21,13 +21,66 @@
 
 <body>
 
-  <!-- Startup Companion Welcome Overlay -->
-  <div id="startOverlay" class="start-overlay" role="dialog" aria-modal="true">
-    <div class="start-overlay-content glass-card">
-      <div class="mascot-wave-animation">👋</div>
-      <h2 class="glow-text">Wake up Companion</h2>
-      <p class="start-overlay-desc">Tap to wake up your personalized Anime AI companion.</p>
-      <button id="activateCompanionBtn" class="activate-btn">⚡ Start DeepGeet</button>
+  <!-- Cinematic Portal Welcome Intro Screen -->
+  <div id="startOverlay" class="start-overlay cinematic phase-1" role="dialog" aria-modal="true">
+    <!-- Portal Ring Element -->
+    <div class="portal-container" id="portalContainer">
+      <div class="portal-ring"></div>
+      <div class="portal-light-beam"></div>
+    </div>
+    
+    <!-- Floating particles background -->
+    <div class="particles-container" id="introParticles" aria-hidden="true"></div>
+
+    <div class="start-overlay-content cinematic-card">
+      
+      <!-- Interactive Cat Mascot Wrapper -->
+      <div class="intro-mascot-container" id="introMascotContainer">
+        <!-- Floating Halo behind cat -->
+        <div class="intro-avatar-glow"></div>
+        
+        <div class="intro-mascot-frame">
+          <img src="assets/images/neocat.jpg" alt="NeoCat - Cyberpunk Anime Companion" id="introMascotImg" class="intro-mascot-img">
+          
+          <!-- Sleeping / Blinking Eyelids -->
+          <div class="eyelid-overlay" id="eyelidOverlay"></div>
+          
+          <!-- Neon Smile Overlay -->
+          <div class="cat-smile" id="catSmile">
+            <svg viewBox="0 0 24 24">
+              <path d="M4,3 C7,9 11,9 12,4 C13,9 17,9 20,3" fill="none" stroke="var(--accent-cyan)" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- CSS Animated Cat Tail -->
+        <div class="cat-tail" id="catTail"></div>
+        
+        <!-- Speech bubble "नमस्ते!" (Step 3) -->
+        <div class="says-namaste-bubble" id="namasteBubble">
+          <span>नमस्ते!</span>
+          <div class="bubble-tail"></div>
+        </div>
+        
+        <!-- Namaste Hands (Paws) -->
+        <div class="paw paw-left" id="pawLeft">🐾</div>
+        <div class="paw paw-right" id="pawRight">🐾</div>
+      </div>
+
+      <!-- Speech visualizer wave (Step 3) -->
+      <div class="says-namaste-waveform-container" id="namasteWaveform">
+        <div class="says-namaste-waveform">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+        <p class="voice-text-subtitle" id="voiceTextSubtitle">नमस्ते! DeepGeet AI में आपका स्वागत है।</p>
+      </div>
+
     </div>
   </div>
 
@@ -116,7 +169,7 @@
 
             <header class="hero-header">
               <h1 class="glow-text">DeepGeet AI</h1>
-              <p class="typing" aria-live="polite">Your Personal Anime Assistant</p>
+              <p class="typing" aria-live="polite">Your Personal AI Anime Assistant</p>
             </header>
 
             <div class="action-dock">
@@ -127,7 +180,7 @@
 
               <button id="chatBtn" class="action-btn chat-action" aria-label="Text conversation mode">
                 <span class="btn-icon">💬</span>
-                <span class="btn-text">Chat with AI</span>
+                <span class="btn-text">Chat to AI</span>
               </button>
             </div>
 
@@ -146,19 +199,24 @@
             <!-- Chat logs viewport -->
             <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversation log history">
               <div class="bot-message msg-bubble">
-                <span class="sender-avatar">🤖</span>
+                <div class="chat-avatar-wrapper">
+                  <img src="assets/images/neocat.jpg" class="chat-avatar" alt="DeepGeet">
+                </div>
                 <div class="msg-content">
                   👋 Hii Buddy! Main DeepGeet AI hoon. Kaise help kar sakta hoon?
                 </div>
               </div>
             </div>
 
-            <!-- Typing/Loading Skeleton Animation Placeholder -->
-            <div id="skeletonLoader" class="skeleton-loader hidden" aria-hidden="true">
-              <div class="skeleton-avatar">🤖</div>
-              <div class="skeleton-lines">
-                <div class="skeleton-line line-1"></div>
-                <div class="skeleton-line line-2"></div>
+            <!-- Bouncing dots premium typing indicator -->
+            <div id="chatTypingIndicator" class="chat-typing-indicator hidden" aria-hidden="true">
+              <div class="chat-avatar-wrapper">
+                <img src="assets/images/neocat.jpg" class="chat-avatar" alt="DeepGeet">
+              </div>
+              <div class="typing-bubble">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
               </div>
             </div>
 
