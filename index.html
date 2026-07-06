@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepGeet AI v5 - Premium Cyberpunk Assistant</title>
+  
+  <meta name="description" content="DeepGeet AI v5 is a premium cyberpunk anime assistant featuring automated voice dictation, chat logs storage, and modular architecture.">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Fonts - Outfit for Headers & Poppins for UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Markdown parser (marked) and Code Highlighter (highlight.js) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+
+<body>
+
+  <!-- Dynamic Canvas Background -->
+  <div id="particles" aria-hidden="true"></div>
+  <div class="background" aria-hidden="true"></div>
+
+  <!-- Primary Application Wrapper -->
+  <div class="app-layout">
+
+    <!-- SIDEBAR PANEL -->
+    <aside class="sidebar collapsed" id="sidebar" aria-label="Navigation & Chat History">
+      
+      <div class="sidebar-header">
+        <div class="brand">
+          <span class="brand-logo">🤖</span>
+          <span class="brand-name glow-text">DeepGeet V5</span>
+        </div>
+        <button id="sidebarCloseBtn" class="sidebar-toggle-btn mobile-only" aria-label="Close Sidebar">✕</button>
+      </div>
+
+      <button id="newChatBtn" class="new-chat-btn" aria-label="Start a new chat session">
+        <span class="plus-icon">+</span> New Chat
+      </button>
+
+      <!-- Scrollable History List -->
+      <div class="sidebar-menu">
+        <h4 class="menu-title">Recent Chats</h4>
+        <div id="sessionsList" class="sessions-list" role="list">
+          <!-- Session logs dynamically generated here -->
+          <div class="empty-sessions-msg">No recent chats</div>
+        </div>
+      </div>
+
+      <!-- Bottom Settings Panel inside Sidebar -->
+      <div class="sidebar-footer">
+        <button id="settingsBtn" class="footer-action-btn" aria-label="Open Settings panel">
+          <span class="action-icon">⚙️</span> Settings
+        </button>
+        <button id="clearAllBtn" class="footer-action-btn danger-text" aria-label="Clear all chats history">
+          <span class="action-icon">🗑️</span> Clear History
+        </button>
+      </div>
+
+    </aside>
+
+    <!-- MAIN CHAT CONTAINER -->
+    <main class="main-container">
+
+      <!-- TOP NAVBAR -->
+      <header class="top-nav">
+        <button id="sidebarToggleBtn" class="sidebar-toggle-btn" aria-label="Toggle Sidebar">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        
+        <div class="current-session-title" id="currentSessionTitle">DeepGeet AI Station</div>
+        
+        <div class="status-wrapper">
+          <span class="status-indicator online" id="statusIndicator">Online</span>
+        </div>
+      </header>
+
+      <!-- WORKSPACE VIEWPORT -->
+      <div class="workspace-viewport">
+        
+        <div class="glass-card" role="region" aria-label="DeepGeet Console Dashboard">
+
+          <!-- 1. LANDING/HERO SCREEN -->
+          <section id="homeScreen" class="screen-panel">
+            
+            <div class="avatar" aria-label="NeoCat Anime Mascot">
+              <div class="avatar-glow"></div>
+              <img src="assets/images/neocat.jpg" alt="NeoCat - Cyberpunk Anime Companion" id="mascotImg">
+            </div>
+
+            <header class="hero-header">
+              <h1 class="glow-text">DeepGeet AI</h1>
+              <p class="typing" aria-live="polite">Your Personal Anime Assistant</p>
+            </header>
+
+            <div class="action-dock">
+              <button id="talkBtn" class="action-btn talk-action" aria-label="Voice conversation mode">
+                <span class="btn-icon">🎤</span>
+                <span class="btn-text">Talk to AI</span>
+              </button>
+
+              <button id="chatBtn" class="action-btn chat-action" aria-label="Text conversation mode">
+                <span class="btn-icon">💬</span>
+                <span class="btn-text">Chat with AI</span>
+              </button>
+            </div>
+
+          </section>
+
+          <!-- 2. CHAT CONSOLE SCREEN -->
+          <section id="chatScreen" class="chat-screen hidden screen-panel">
+
+            <!-- Back to landing screen button -->
+            <div class="chat-header-actions">
+              <button id="backBtn" class="back-button" aria-label="Back to landing screen">
+                <span class="arrow-icon">←</span> Home
+              </button>
+            </div>
+
+            <!-- Chat logs viewport -->
+            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversation log history">
+              <div class="bot-message msg-bubble">
+                <span class="sender-avatar">🤖</span>
+                <div class="msg-content">
+                  👋 Hii Buddy! Main DeepGeet AI hoon. Kaise help kar sakta hoon?
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing/Loading Skeleton Animation Placeholder -->
+            <div id="skeletonLoader" class="skeleton-loader hidden" aria-hidden="true">
+              <div class="skeleton-avatar">🤖</div>
+              <div class="skeleton-lines">
+                <div class="skeleton-line line-1"></div>
+                <div class="skeleton-line line-2"></div>
+              </div>
+            </div>
+
+            <!-- File Upload Mockup Dropzone Area -->
+            <div id="dropZone" class="drop-zone hidden" aria-label="File upload dropzone">
+              <div class="drop-zone-content">
+                <span class="upload-icon">📂</span>
+                <p>Drag & Drop files here or click to upload</p>
+                <input type="file" id="fileInput" class="file-input" multiple>
+              </div>
+            </div>
+
+            <!-- Interactive Console Input Block -->
+            <div class="console-input-wrapper">
+              
+              <!-- Left side attachment button mock -->
+              <button id="attachBtn" class="input-utility-btn" aria-label="Attach files">
+                📎
+              </button>
+              
+              <div class="input-inner-container">
+                <input
+                  type="text"
+                  id="userInput"
+                  placeholder="Type your message here..."
+                  aria-label="Chat input field"
+                >
+                
+                <!-- Mic button right inside input box -->
+                <button id="inputMicBtn" class="input-utility-btn mic-input-btn" aria-label="Speech to text typing">
+                  🎙️
+                </button>
+                
+                <button id="sendBtn" class="send-submit-btn" aria-label="Send message">
+                  ➔
+                </button>
+              </div>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- APPLICATION SETTINGS MODAL overlay -->
+  <div id="settingsModal" class="modal hidden" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+    <div class="modal-overlay"></div>
+    <div class="modal-content glass-card">
+      
+      <div class="modal-header">
+        <h3 id="modalTitle" class="glow-text">⚙️ Settings Dashboard</h3>
+        <button id="closeSettingsBtn" class="close-modal-btn" aria-label="Close Settings">✕</button>
+      </div>
+      
+      <p class="modal-desc">Configure your DeepGeet-V5 experience. Options are saved locally in your client cache.</p>
+      
+      <div class="settings-form">
+        
+        <!-- Toggle voice reading of replies -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Voice Responses</span>
+            <span class="setting-sub">Let the AI speak the replies aloud</span>
+          </div>
+          <label class="switch-toggle">
+            <input type="checkbox" id="voiceToggle" checked>
+            <span class="slider-round"></span>
+          </label>
+        </div>
+
+        <!-- Layout theme presets selection -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">Visual Theme Preset</span>
+            <span class="setting-sub">Choose visual palette accents</span>
+          </div>
+          <select id="themeSelector" class="custom-select">
+            <option value="cyberpunk">Cyber Neon (Cyan & Pink)</option>
+            <option value="emerald">Emerald Forest (Green & Cyan)</option>
+            <option value="synthwave">Retro Synth (Purple & Orange)</option>
+          </select>
+        </div>
+
+        <!-- AI Engine Selector -->
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-label">AI Engine Model</span>
+            <span class="setting-sub">Select backend model preset</span>
+          </div>
+          <select id="modelSelector" class="custom-select">
+            <option value="llama-3.3-70b-versatile">Llama 3.3 70B (High Quality)</option>
+            <option value="llama-3.1-8b-instant">Llama 3.1 8B (Super Fast)</option>
+            <option value="mixtral-8x7b-32768">Mixtral 8x7B (Balanced)</option>
+          </select>
+        </div>
+
+      </div>
+      
+      <div class="modal-footer">
+        <button id="saveSettingsBtn" class="save-settings-action">Save & Apply Changes</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Loading scripts -->
+  <script src="js/particles.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

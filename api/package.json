@@ -1,0 +1,17 @@
+{
+  "name": "deepgeet-ai-v5",
+  "version": "5.0.0",
+  "description": "DeepGeet AI V5 Backend",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "groq-sdk": "^0.30.0"
+  }
+}
