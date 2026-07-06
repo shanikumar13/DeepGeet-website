@@ -6,10 +6,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const homeScreen = document.getElementById("homeScreen");
     const chatScreen = document.getElementById("chatScreen");
+    const voiceScreen = document.getElementById("voiceScreen");
 
     const chatBtn = document.getElementById("chatBtn");
     const talkBtn = document.getElementById("talkBtn");
     const backBtn = document.getElementById("backBtn");
+    const voiceBackBtn = document.getElementById("voiceBackBtn");
+
+    const startOverlay = document.getElementById("startOverlay");
+    const activateCompanionBtn = document.getElementById("activateCompanionBtn");
 
     const sidebar = document.getElementById("sidebar");
     const sidebarToggleBtn = document.getElementById("sidebarToggleBtn");
@@ -25,6 +30,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const modelSelector = document.getElementById("modelSelector");
 
     /* --------------------------
+       Startup Overlay
+    --------------------------- */
+    activateCompanionBtn?.addEventListener("click", () => {
+        startOverlay.classList.add("hidden");
+        if (typeof speak === "function") {
+            speak("Hello Buddy! Welcome to DeepGeet.");
+        }
+        const mascot = document.getElementById("mascotImg");
+        if (mascot) {
+            mascot.style.transform = "scale(1.15) rotate(5deg)";
+            setTimeout(() => {
+                mascot.style.transform = "";
+            }, 1000);
+        }
+    });
+
+    /* --------------------------
        Screen Navigation
     --------------------------- */
 
@@ -32,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         homeScreen.classList.remove("hidden");
         chatScreen.classList.add("hidden");
+        voiceScreen.classList.add("hidden");
 
     }
 
@@ -39,18 +62,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
         homeScreen.classList.add("hidden");
         chatScreen.classList.remove("hidden");
+        voiceScreen.classList.add("hidden");
 
         const input = document.getElementById("userInput");
 
         if (input) input.focus();
 
+        // Inject initial greeting if chat is fresh and empty
+        const messages = document.getElementById("chatMessages");
+        if (messages && messages.children.length <= 1) {
+            if (typeof speak === "function") {
+                speak("Hello Buddy, New Chat Started!");
+            }
+        }
+
+    }
+
+    function showVoice() {
+
+        homeScreen.classList.add("hidden");
+        chatScreen.classList.add("hidden");
+        voiceScreen.classList.remove("hidden");
+
+        if (typeof startVoiceAssistant === "function") {
+            startVoiceAssistant();
+        }
+
+    }
+
+    function exitVoice() {
+
+        if (typeof stopVoiceAssistant === "function") {
+            stopVoiceAssistant();
+        }
+        showHome();
+
     }
 
     chatBtn?.addEventListener("click", showChat);
 
-    talkBtn?.addEventListener("click", showChat);
+    talkBtn?.addEventListener("click", showVoice);
 
     backBtn?.addEventListener("click", showHome);
+
+    voiceBackBtn?.addEventListener("click", exitVoice);
 
     /* --------------------------
        Sidebar

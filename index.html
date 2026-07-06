@@ -21,6 +21,16 @@
 
 <body>
 
+  <!-- Startup Companion Welcome Overlay -->
+  <div id="startOverlay" class="start-overlay" role="dialog" aria-modal="true">
+    <div class="start-overlay-content glass-card">
+      <div class="mascot-wave-animation">👋</div>
+      <h2 class="glow-text">Wake up Companion</h2>
+      <p class="start-overlay-desc">Tap to wake up your personalized Anime AI companion.</p>
+      <button id="activateCompanionBtn" class="activate-btn">⚡ Start DeepGeet</button>
+    </div>
+  </div>
+
   <!-- Dynamic Canvas Background -->
   <div id="particles" aria-hidden="true"></div>
   <div class="background" aria-hidden="true"></div>
@@ -78,6 +88,15 @@
         <div class="current-session-title" id="currentSessionTitle">DeepGeet AI Station</div>
         
         <div class="status-wrapper">
+          <!-- Speaking visualizer -->
+          <div id="speakingVisualizer" class="speaking-visualizer hidden" aria-label="AI is speaking">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </div>
+          <!-- Stop Speaking button -->
+          <button id="stopVoiceBtn" class="stop-voice-btn hidden" aria-label="Stop Voice Response">🛑 Stop</button>
           <span class="status-indicator online" id="statusIndicator">Online</span>
         </div>
       </header>
@@ -178,6 +197,48 @@
                 </button>
               </div>
 
+            </div>
+
+          </section>
+
+          <!-- 3. VOICE CONVERSATION SCREEN -->
+          <section id="voiceScreen" class="voice-screen hidden screen-panel">
+            
+            <div class="voice-header-actions">
+              <button id="voiceBackBtn" class="back-button" aria-label="Back to landing screen">
+                <span class="arrow-icon">←</span> Home
+              </button>
+            </div>
+
+            <div class="voice-mascot-container" aria-label="Animated Cat Companion Mascot">
+              <div class="voice-avatar-glow"></div>
+              <img src="assets/images/neocat.jpg" alt="NeoCat" class="voice-mascot-img" id="voiceMascotImg">
+            </div>
+
+            <div class="voice-status-container">
+              <h2 id="voiceStatusText" class="voice-status-text glow-text">Sleeping...</h2>
+              <p id="voiceSubtitleText" class="voice-subtitle-text">Tap the mic to talk with me!</p>
+            </div>
+
+            <div class="voice-visualizer-container">
+              <div id="voiceWaveform" class="voice-waveform hidden">
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+                <span class="vbar"></span>
+              </div>
+            </div>
+
+            <div class="voice-control-dock">
+              <button id="voiceMicBtn" class="voice-mic-btn" aria-label="Toggle Microphone">
+                🎙️
+              </button>
+              <button id="voiceStopBtn" class="voice-stop-btn hidden" aria-label="Stop Speaking">
+                🛑 Stop
+              </button>
             </div>
 
           </section>
