@@ -15,14 +15,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Mount API routes under both /api and / to handle Vercel rewrites robustly
 app.use("/api", routes);
+app.use("/", routes);
 
 app.use(express.static(path.join(__dirname, "../")));
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`✅ DeepGeet Backend Running on Port ${PORT}`);
-});
+// Only start the persistent listener if NOT running in Vercel Serverless environment
+if (!process.env.VERCEL) {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`✅ DeepGeet Backend Running on Port ${PORT}`);
+    });
+}
 
 export default app;

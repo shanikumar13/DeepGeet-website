@@ -9,13 +9,23 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, ".env") });
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groq = null;
+function getGroqClient() {
+  if (!groq) {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      console.warn("⚠️ Warning: GROQ_API_KEY is not defined in process.env!");
+    }
+    groq = new Groq({
+      apiKey: apiKey || "dummy-key-for-load-time-safety",
+    });
+  }
+  return groq;
+}
 
 export async function generateReply(message, model = "llama-3.3-70b-versatile") {
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroqClient().chat.completions.create({
       model: model,
       messages: [
         {

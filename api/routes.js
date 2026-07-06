@@ -4,9 +4,6 @@ import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 
 const router = express.Router();
 
-// Initialize the MsEdgeTTS client
-const tts = new MsEdgeTTS();
-
 router.post("/chat", async (req, res) => {
 
     try {
@@ -45,6 +42,9 @@ router.get("/tts", async (req, res) => {
         if (!text) {
             return res.status(400).send("Text is required.");
         }
+
+        // Initialize stateless MsEdgeTTS client specifically for this serverless invocation
+        const tts = new MsEdgeTTS();
 
         // hi-IN-MadhurNeural is a premium, natural, warm Hindi Male voice
         // en-US-BrianNeural is a premium, natural, clear English Male voice
